@@ -7,8 +7,6 @@ resource "aws_instance" "web" {
   }
 }
 
-
-# S3 Bucket
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
 
@@ -24,5 +22,3 @@ resource "aws_vpc" "main" {
     Name = var.name
   }
 }
-
-
