@@ -6,7 +6,7 @@ resource "aws_instance" "web" {
     Name = var.name
   }
 }
-}
+
 
 # S3 Bucket
 resource "aws_s3_bucket" "bucket" {
