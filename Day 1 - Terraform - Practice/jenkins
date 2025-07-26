@@ -1,5 +1,7 @@
 node {
-    // Set environment variable in scripted syntax
+    // Use the action parameter (e.g., "apply" or "destroy")
+    def action = params.action
+
     env.TF_DIR = 'Day-1-introduction'
 
     stage('Git Checkout') { 
@@ -11,14 +13,22 @@ node {
             sh 'terraform init'
         }
     }
-    stage('Terraform plan') {
+
+    stage('Terraform Plan') {
         dir(env.TF_DIR) {
-            sh 'terraform plan'
+            if (action == 'apply') {
+                sh 'terraform plan'
+            } else if (action == 'destroy') {
+                sh 'terraform plan -destroy'
+            } else {
+                error "Invalid action: ${action}"
+            }
         }
     }
-    stage('Terraform apply') {
+
+    stage('Terraform Apply/Destroy') {
         dir(env.TF_DIR) {
-            sh 'terraform ${action} -auto-approve'
+            sh "terraform ${action} -auto-approve"
         }
     }
 }
