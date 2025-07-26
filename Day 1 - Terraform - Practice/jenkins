@@ -1,0 +1,24 @@
+node {
+    // Set environment variable in scripted syntax
+    env.TF_DIR = 'Day-1-introduction'
+
+    stage('Git Checkout') { 
+        git branch: 'main', url: 'https://github.com/ijitendar/Terraform.git'
+    }
+
+    stage('Terraform Init') {
+        dir(env.TF_DIR) {
+            sh 'terraform init'
+        }
+    }
+    stage('Terraform plan') {
+        dir(env.TF_DIR) {
+            sh 'terraform plan'
+        }
+    }
+    stage('Terraform apply') {
+        dir(env.TF_DIR) {
+            sh 'terraform ${action} -auto-approve'
+        }
+    }
+}
