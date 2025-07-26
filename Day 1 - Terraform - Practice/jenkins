@@ -1,34 +1,53 @@
-node {
-    // Use the action parameter (e.g., "apply" or "destroy")
-    def action = params.action
+pipeline {
+    agent any
 
-    env.TF_DIR = 'Day-1-introduction'
-
-    stage('Git Checkout') { 
-        git branch: 'main', url: 'https://github.com/ijitendar/Terraform.git'
+    environment {
+        TF_DIR = 'Day-2-introduction'   // 👈 Centralized Terraform directory
     }
 
-    stage('Terraform Init') {
-        dir(env.TF_DIR) {
-            sh 'terraform init'
+    parameters {
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose Terraform action')
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/CloudTechDevOps/terraform0730am.git'
+            }
         }
-    }
 
-    stage('Terraform Plan') {
-        dir(env.TF_DIR) {
-            if (action == 'apply') {
-                sh 'terraform plan'
-            } else if (action == 'destroy') {
-                sh 'terraform plan -destroy'
-            } else {
-                error "Invalid action: ${action}"
+        stage('Terraform Init') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Terraform Apply/Destroy') {
+            steps {
+                echo "⚙️ Running: terraform ${params.action} ..."
+                dir("${env.TF_DIR}") {
+                    sh "terraform ${params.action} -auto-approve"
+                }
             }
         }
     }
 
-    stage('Terraform Apply/Destroy') {
-        dir(env.TF_DIR) {
-            sh "terraform ${action} -auto-approve"
+    post {
+        success {
+            echo "✅ Terraform ${params.action} completed successfully."
+        }
+        failure {
+            echo "❌ Terraform ${params.action} failed."
         }
     }
 }
